@@ -1,6 +1,8 @@
-function StatModsTypes(name,order){
-	this.name = name;
-	this.order = order;
+class StatModsTypes {
+  constructor(name,order) {
+    this.name = name;
+    this.order = order;
+  }
 }
 
 const FLAT = new StatModsTypes('FLAT', 100);
@@ -15,18 +17,19 @@ const NULLIFY = new StatModsTypes('NULLIFY', 400);
 // 	NULLIFY = 400
 // }
 
-function StatModifier( type, value, src, id){
-	this.id = id
-	this.type = type;
-	this.value = value;
-	this.src = src;
+export default class StatModifier {
+  constructor( type, value, src, id) {
+    this.id = id
+    this.type = type;
+    this.value = value;
+    this.src = src;
+  }
+
+  getType() {
+  	this.type.name;
+  }
 }
 
-StatModifier.prototype.getType = function() {
-	this.type.name;
-};
-
-export default StatModifier;
 export const FLAT_STAT_MODIFIER = FLAT;
 export const PERCENT_STAT_MODIFIER = PERCENT;
 export const PER_ADDITVE_STAT_MODIFIER = PER_ADDITVE;
