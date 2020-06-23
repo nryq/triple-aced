@@ -18,11 +18,12 @@ const NULLIFY = new StatModsTypes('NULLIFY', 400);
 // }
 
 export default class StatModifier {
-  constructor( type, value, src, id) {
+  constructor( type, value, src, id, timer = false ) {
     this.id = id
     this.type = type;
     this.value = value;
     this.src = src;
+    this.timer = timer;
   }
 
   getType() {

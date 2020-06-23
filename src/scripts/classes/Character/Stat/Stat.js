@@ -14,7 +14,13 @@ export default class Stat {
       writable: true
     });
   }
-
+  get value(){
+    // in case de stal value is dirty (modifiers o setted)
+    // is calculated again
+    if( this.__isDirty )
+      this.statVal = this.calculateStat();
+    return this.statVal;
+  }
   getStatValue() {
   	// in case de stal value is dirty (modifiers o setted)
   	// is calculated again
@@ -23,40 +29,33 @@ export default class Stat {
 
   	return this.statVal;
   };
-
   setStatValue(newVal) {
 
   	this.hasToCalculate();
   	this.baseVal = newVal;
   };
-
   addModifier(modifier) {
 
   	this.hasToCalculate();
   	this.statModifiers.push(modifier);
   };
-
   getModifiers() {
   	return this.statModifiers;
   }
-
   addMultipleModifiers( arrMods ) {
   	this.hasToCalculate();
   	this.statModifiers.concat(arrMods);
   }
-
   // in case of stat modification this function should be
   // called to raise the flag to be recalculated when
   // the stat value is needed
   hasToCalculate() {
   	this.__isDirty = true;
   };
-
   // mark the stat as clean and DOES NOT need to be calculated
   calculated() {
   	this.__isDirty = false;
   };
-
   // calculate de new stat value and return it
   calculateStat() {
 
