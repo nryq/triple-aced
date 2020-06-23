@@ -23,9 +23,19 @@ export const HP = {
   name: 'HP',
   def:''
 };
+export const CHP = {
+  abr: 'CHP',
+  name: 'HP Actual',
+  def:''
+};
 export const MP = {
   abr: 'MP',
   name: 'Mana',
+  def: ''
+};
+export const CMP = {
+  abr: 'CMP',
+  name: 'Mana Actual',
   def: ''
 };
 export const CDR = {

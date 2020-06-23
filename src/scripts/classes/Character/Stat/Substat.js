@@ -11,7 +11,7 @@ export default class DerivedStat extends Stat{
   get value(){
     return this.calculateDerivedStat();
   }
-  addToDictionary( stat, calcMethod=()=>{return stat.value+super.value} ){
+  addToDictionary( stat, calcMethod=()=>{return stat.value} ){
     this.hasToCalculate();
     this.statDictionary[ stat.abr ] = {
       stat,

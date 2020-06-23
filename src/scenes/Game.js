@@ -18,7 +18,7 @@ const ASD = 'null';
 
 const newChara = new Character(
   'Elfo Puto',
-  new CharacterStats(4, 7, 3),
+  new CharacterStats(4, 7, 3, 12),
   new Elf()
 );
 
