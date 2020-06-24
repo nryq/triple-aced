@@ -36,5 +36,15 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: "./index.html"
     })
-  ]
+  ],
+  resolve: {
+    alias: {
+      '@': path.resolve('src'),
+      Scripts: path.resolve('src/scripts'),
+      Classes: path.resolve('src/scripts/classes'),
+      Helpers: path.resolve('src/helpers'),
+      Scenes: path.resolve('src/scenes'),
+      Assets: path.resolve('src/assets'),
+    },
+  },
 };

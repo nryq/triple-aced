@@ -1,12 +1,23 @@
 import logoImg from "../assets/logo.png";
 import demon from '../assets/spritesheets/demon.png';
-import elf_f from '../assets/spritesheets/elf_f.png';
+import elf_f from 'Assets/spritesheets/elf_f.png';
 
-import Character from '../scripts/classes/Character/Character.js';
+import Character from 'Classes/Character/Character.js';
 import Elf from '../prefabs/Elf';
-import CharacterStats from '../scripts/classes/Character/Stat/CharacterStats.js';
+import CharacterStats from 'Classes/Character/Stat/CharacterStats.js';
 
 import InputControls from '../helpers/controls.js';
+
+import StatModifier, {
+  FLAT_STAT_MODIFIER,
+  PERCENT_STAT_MODIFIER,
+  PER_ADDITVE_STAT_MODIFIER,
+  NULLIFY_STAT_MODIFIER
+} from 'Classes/Character/Stat/StatModifier.js';
+
+import * as Stats from 'Classes/Character/Stat/StatDEF';
+
+let newConMod = new StatModifier(FLAT_STAT_MODIFIER, 1034, 'GM', 'SUERP');
 
 let up;
 let down;
@@ -71,6 +82,9 @@ export default class Game extends Phaser.Scene{
 
       elf_fSprite.x -= ms;
       elf_fSprite.flipX=true;
+      console.log('new-->', newConMod, Stats);
+      newChara.stats.addModifierToStat( Stats.CON, newConMod )
+      console.log('new-->', newChara);
     });
 
     this.TA_Input.onRightInput(function(){

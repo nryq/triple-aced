@@ -1,3 +1,10 @@
+import StatModifier, {
+  FLAT_STAT_MODIFIER,
+  PERCENT_STAT_MODIFIER,
+  PER_ADDITVE_STAT_MODIFIER,
+  NULLIFY_STAT_MODIFIER
+} from 'Classes/Character/Stat/StatModifier.js';
+
 export default class Stat {
   constructor( name, baseVal, abr, desc ) {
 
@@ -62,6 +69,7 @@ export default class Stat {
   calculated() {
   	this.__isDirty = false;
   };
+  // TODO: PER_ADDITVE_STAT_MODIFIER no está bien implimentado
   // calculate de new stat value and return it
   calculateStat() {
 
@@ -69,17 +77,17 @@ export default class Stat {
 
   	for(let mod of this.statModifiers ){
 
-  		switch( mod.type ){
+  		switch( mod.type.name ){
 
-  			case FLAT_STAT_MODIFIER:
+  			case FLAT_STAT_MODIFIER.name:
 
   				finalValue += mod.value;
   			break;
-  			case PERCENT_STAT_MODIFIER:
+  			case PERCENT_STAT_MODIFIER.name:
 
   				finalValue *= (1 + mod.value);
   			break;
-  			case PER_ADDITVE_STAT_MODIFIER:
+  			case PER_ADDITVE_STAT_MODIFIER.name:
 
   				finalValue *= (1 + mod.value);
   			break;

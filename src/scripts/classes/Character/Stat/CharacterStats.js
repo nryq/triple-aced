@@ -72,7 +72,8 @@ export default class CharacterStats {
 
   addModifierToStat( stat, modifier ){
     let statName = typeof stat == 'string'?stat:stat.abr;
-    this.statDictionary[statName].addModifier(modifier);
+    console.log(this,this.statsDictionary )
+    this.statsDictionary[statName].addModifier(modifier);
 
     if( modifier.timer !== false ){
       if( !this._loopDictionary.hasOwnProperty(statName) )
