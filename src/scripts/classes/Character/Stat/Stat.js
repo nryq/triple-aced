@@ -39,6 +39,12 @@ export default class Stat {
   	this.hasToCalculate();
   	this.statModifiers.push(modifier);
   };
+  removeModifier(modifier){
+    this.hasToCalculate();
+    let index = this.statModifiers.indexOf(modifier);
+    if( index < 0 ) return false;
+    this.statModifiers.splice(index, 1);
+  };
   getModifiers() {
   	return this.statModifiers;
   }

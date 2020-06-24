@@ -13,11 +13,12 @@ import * as __DEF from './StatDEF.js';
 */
 
 export default class CharacterStats {
+
   constructor( con = 0, agi=0, int=0, dex=0 ) {
 
     this.primaryStats = {};
     this.subStat = {};
-    this.cicleTime = 1;
+    this.loopTime = 1;
 
     // BASE STATS
     // name, baseVal, abr, desc
@@ -46,23 +47,53 @@ export default class CharacterStats {
     this.subStat[__DEF.ATSP.abr] = new Substat( __DEF.ATSP.name, 0, __DEF.ATSP.abr, __DEF.ATSP.def );
     this.subStat[__DEF.CRIT.abr] = new Substat( __DEF.CRIT.name, 0, __DEF.CRIT.abr, __DEF.CRIT.def );
 
-    this.subStat[__DEF.DMG.abr].addToDictionary( this.primaryStats[__DEF.CON.abr], function(statDictionary, statValue){
-      console.log( this.stat, statValue )
+    this.subStat[__DEF.DMG.abr].addDependentStat( this.primaryStats[__DEF.CON.abr], function(statDictionary, statValue){
       return (this.stat.value * statValue)/2;
     } );
 
-    this.subStat[__DEF.DMG.abr].addToDictionary( this.primaryStats[__DEF.INT.abr] );
+    this.subStat[__DEF.DMG.abr].addDependentStat( this.primaryStats[__DEF.INT.abr] );
 
-    this.subStat[__DEF.DMG.abr].addToDictionary( this.primaryStats[__DEF.DEX.abr], function(){
+    this.subStat[__DEF.DMG.abr].addDependentStat( this.primaryStats[__DEF.DEX.abr], function(){
       return this.stat.value/3;
     } );
+    // diccionario de modificadores de stats que se le hayan agregado
+    //
+    Object.defineProperty(this, "_loopDictionary", {
+      enumerable: false,
+      writable: true
+    });
+
+    this._loopDictionary = {};
+  };
+
+  get statsDictionary(){
+    return { ...this.primaryStats,  ...this.subStat };
+  };
+
+  addModifierToStat( stat, modifier ){
+    let statName = typeof stat == 'string'?stat:stat.abr;
+    this.statDictionary[statName].addModifier(modifier);
+
+    if( modifier.timer !== false ){
+      if( !this._loopDictionary.hasOwnProperty(statName) )
+        this._loopDictionary[statName] = {};
+      Object.assign(this._loopDictionary[statName][modifier.id], modifier);
+    }
+  };
+
+  removeModifierFromStat( stat, modifier ){
+    let statName = typeof stat == 'string'?stat:stat.abr;
+    stat.removeModifier( modifier );
+    if( modifier.timer !== false )
+      delete this._loopDictionary[statName][modifier.id];
   }
+
   // TODO: MODIFICADORES pueden tener tiempo de expiracion.
   // TODO: modificadores expirados deben ser removidos
   // TODO: los modificadores tendrán el tiempo de vigencia en cada uno, pero el timer estará en esta classes
   // para disminuir el tiempo de procesamiento de los timers
   // sigue a los modificadores de stats que sean temporales.
-  checkCicle(deltaTime){
+  checkLoop(deltaTime){
     this.cicleTime-=deltaTime;
   }
 }
