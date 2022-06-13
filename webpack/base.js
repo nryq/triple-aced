@@ -6,6 +6,13 @@ const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 module.exports = {
   mode: "development",
   devtool: "eval-source-map",
+	resolve: {
+    alias: {
+      '@': path.resolve('src'),
+			'@GameEngine': path.resolve('src/scripts/GameEngine'),
+			'@VisualEngine': path.resolve('src/scripts/VisualEngine'),
+    },
+	},
   module: {
     rules: [
       {

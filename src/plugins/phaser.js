@@ -1,23 +1,42 @@
-import 
+import Phaser from "phaser";
+// import logoImg from "./assets/logo.png";
+import SceneBattlefield from '@/scripts/GameEngine/scenes/SceneBattlefield';
+import SceneBackground from '@/scripts/GameEngine/scenes/SceneBackground';
+
+import SceneDungeon from '@/scripts/GameEngine/scenes/SceneDungeon'
+
+let sceneBF = new SceneBattlefield();
+let sceneBG = new SceneBackground();
+let sceneDun = new SceneDungeon({key:'dun', active:true});
+
+let width = window.innerWidth,
+	height = window.innerHeight;
 
 let config = {
 	type: Phaser.AUTO,
-	width: 800,
-	height: 600,
+	width,
+	height,
+	transparent: true,
 	physics: {
 		default: 'arcade',
 		arcade: {
-			gravity: { y: 200 }
+			// gravity: { y: 200 }
+		},
+		debug: {
+			showBody: true,
+			showStaticBody: true
 		}
 	},
-	scene: {
-		preload: preload,
-		create: create
-	}
+	scene: [
+		sceneBG
+		,sceneDun,
+		
+	]
 };
 
 function preload (){
 	this.load.setBaseURL('http://labs.phaser.io');
+	// http://labs.phaser.io/assets/tilemaps/iso/isorpg.json
 
 	this.load.image('sky', 'assets/skies/space3.png');
 	this.load.image('logo', 'assets/sprites/phaser3-logo.png');
@@ -44,7 +63,10 @@ function create (){
 	emitter.startFollow(logo);
 }
 
+function update(){
+	
+}
 
-// let game = new Phaser.Game(config);
+let phaserGame = new Phaser.Game(config);
 
-export default new Phaser.Game(config);
+export default phaserGame

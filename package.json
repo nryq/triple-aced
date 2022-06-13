@@ -1,6 +1,6 @@
 {
-  "name": "phaser3-project-template",
-  "version": "1.1.0",
+  "name": "triple-aced",
+  "version": "0.0.1",
   "description": "A Phaser 3 Project Template",
   "main": "src/index.js",
   "scripts": {
@@ -20,10 +20,11 @@
     "terser-webpack-plugin": "^2.2.1",
     "webpack": "^4.41.2",
     "webpack-cli": "^3.3.10",
-    "webpack-dev-server": "^3.9.0",
+    "webpack-dev-server": "^3.11.3",
     "webpack-merge": "^4.2.2"
   },
   "dependencies": {
-    "phaser": "^3.20.1"
+    "phaser": "^3.55.2",
+    "phaser-utility": "^1.0.7"
   }
 }

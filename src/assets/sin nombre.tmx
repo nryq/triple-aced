@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.8" tiledversion="1.8.5" orientation="isometric" renderorder="right-down" width="10" height="12" tilewidth="1024" tileheight="1024" infinite="0" nextlayerid="2" nextobjectid="1">
+ <tileset firstgid="1" source="C:/Users/Enrique/Downloads/asdasd.tsx"/>
+ <layer id="1" name="Capa de patrones 1" width="10" height="12">
+  <data encoding="csv">
+1,1,1,1,1,1,1,1,1,1,
+1,1,2,1,1,1,2,2,1,1,
+1,1,1,1,1,1,1,1,1,1,
+1,1,1,1,1,1,1,1,2,1,
+1,1,2,1,1,1,1,0,2,0,
+1,1,1,1,1,1,1,1,2,2,
+1,1,1,1,1,1,1,1,2,2,
+1,1,1,1,1,1,2,2,2,2,
+1,1,1,2,2,1,2,2,2,0,
+1,1,1,2,1,2,2,2,2,1,
+1,0,1,1,1,2,1,1,1,1,
+1,1,1,1,1,1,1,2,2,0
+</data>
+ </layer>
+</map>
