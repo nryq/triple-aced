@@ -274,8 +274,13 @@ export default class IsometricTilemap extends CustomTilemap{
 				}
 
 				if(tiles[y][x]!=null){
+					tiles[y][x].setCollision(false , false , true)
+ 
 					tiles[y][x].setSize(tileWidth*1.1, tileHeight*1.1, tileWidth, tileHeight*.5)
-					tiles[y][x].bottom = 128
+					// tiles[y][x].bottom = 128
+					tiles[y][x].setCollisionCallback((ar)=>{
+						console.log( 'asdasd', ar, x, y )
+					})
 				}
       }
 

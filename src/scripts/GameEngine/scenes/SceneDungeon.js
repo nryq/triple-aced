@@ -91,7 +91,7 @@ export default class SceneDungeon extends MapScene{
 			return (tempPt);
 		}
 
-		console.log( 'map', map )
+		console.log( 'map', this.layer )
 		// console.log( 'tileset', tileset )
 		// console.log('layer', layer.layer)this.scene.sys.displayList.add(layer);
 
@@ -123,7 +123,7 @@ export default class SceneDungeon extends MapScene{
 		// iso.projection = 5
 		// this.add.image( 100,100,'tile' );
 		
-		this.player = this.physics.add.sprite(128,128,'player')
+		this.player = this.physics.add.sprite(128,128,'player').setDepth(0)
 
 		let up = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
 			down = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),

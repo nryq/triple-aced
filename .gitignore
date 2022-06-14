@@ -1,5 +1,6 @@
 # System and IDE files
 Thumbs.db
+.vscode
 .DS_Store
 .idea
 *.suo
