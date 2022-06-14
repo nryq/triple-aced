@@ -230,7 +230,7 @@ export default class IsometricTilemap extends CustomTilemap{
 
 		var mapData = new Phaser.Tilemaps.MapData({
 			name: name,
-			tileWidth: tileWidth*2,
+			tileWidth: tileWidth,
 			tileHeight: tileHeight,
 			format: null,
 			layers: [ layerData ]
@@ -274,7 +274,7 @@ export default class IsometricTilemap extends CustomTilemap{
 				}
 
 				if(tiles[y][x]!=null){
-					tiles[y][x].setSize(tileWidth, tileHeight, tileWidth, tileHeight/2)
+					tiles[y][x].setSize(tileWidth*1.1, tileHeight*1.1, tileWidth, tileHeight*.5)
 					tiles[y][x].bottom = 128
 				}
       }

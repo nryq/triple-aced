@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 
-import tile from '@/assets/tilesets/Isometric/Tiles/BaseTiles/Base1.png';
+import tile from '@/assets/tilesets/Isometric/Tiles/BaseTiles/Base1 (64x64).png';
 import player from '@/assets/pj/elf_f_idle_anim_f0.png';
 
 import {Align} from 'phaser-utility';
@@ -60,8 +60,6 @@ export default class SceneDungeon extends MapScene{
 			,tilewidth: 1024
 		}
 
-		console.log('Phaser.Tilemaps.Parsers', Phaser.Tilemaps.Parsers)
-
 		let parser = IsometricTilemap.parseIso(
 			'dun'
 			, lvl
@@ -69,19 +67,12 @@ export default class SceneDungeon extends MapScene{
 			, 64
 			, false
 		)
-
 		parser.orientation = 'isometric';
-		// parser.layers = [{
-		// 	orientation: 1,
-		// 	data:lvl
-		// }]
 
 		let map = new IsometricTilemap(this, parser)
 		// let map = new Phaser.Tilemaps.Tilemap(this, parser);
 
-		const tileset = map.addTilesetImage('asdasd', 'tile', 1024, 1024);
-		console.log('map', map)
-		console.log( 'tileset',tileset )
+		const tileset = map.addTilesetImage('asdasd', 'tile', 64, 64);
 		this.layer = map.createLayer(0, tileset, 64, 64).setVisible(true);
 		// let layer2 = map.createBlankLayer('walls', tileset, 200, 200).setData(_layer2);
 		
@@ -140,6 +131,8 @@ export default class SceneDungeon extends MapScene{
 			right = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
 
 		this.cursors = {up,down,left,right}
+
+		console.log( 'player', this.player )
 	}
 
 	
@@ -150,16 +143,21 @@ export default class SceneDungeon extends MapScene{
     // this.rt.draw(this.layer);
 
 		let xVel = 0,
-			yVel = 0;
+			yVel = 0,
+			vel = 200;
 
-		if( this.cursors.right.isDown || this.cursors.left.isDown ){
-			xVel = 160;
+		let lateralMovement = this.cursors.right.isDown || this.cursors.left.isDown;
+		let verticalMovement = this.cursors.up.isDown || this.cursors.down.isDown;
+
+		if( lateralMovement ){
+			xVel = vel;
 			xVel *= this.cursors.left.isDown?-1:1;
 		}
 
-		if( this.cursors.up.isDown || this.cursors.down.isDown ){
-			yVel = 160;
+		if( verticalMovement ){
+			yVel = vel;
 			yVel *= this.cursors.up.isDown?-1:1;
+			yVel *= lateralMovement?.5:.75;
 		}
 
 		this.player.setVelocityY(yVel);
