@@ -1,5 +1,10 @@
 
-import Phaser from "phaser";
+import Phaser, {Tilemaps} from "phaser";
+
+const {Tile} = Tilemaps;
+import IsInLayerBounds from "phaser/src/tilemaps/components/IsInLayerBounds";
+import CalculateFacesAt from "phaser/src/tilemaps/components/CalculateFacesAt";
+import SetTileCollision from "phaser/src/tilemaps/components/SetTileCollision";
 
 import CustomTilemap from "./CustomTilemap";
 import IsometricLayer from "./IsometricLayer";
@@ -93,16 +98,16 @@ export default class IsometricTilemap extends CustomTilemap{
 	}
 
 	cartesianToIsometric(cartPt){
-    var tempPt=new Phaser.Point();
-    tempPt.x=cartPt.x-cartPt.y;
-    tempPt.y=(cartPt.x+cartPt.y)/2;
-    return (tempPt);
+		var tempPt=new Phaser.Point();
+		tempPt.x=cartPt.x-cartPt.y;
+		tempPt.y=(cartPt.x+cartPt.y)/2;
+		return (tempPt);
 	}
 	isometricToCartesian(isoPt){
-    var tempPt=new Phaser.Point();
-    tempPt.x=(2*isoPt.y+isoPt.x)/2;
-    tempPt.y=(2*isoPt.y-isoPt.x)/2;
-    return (tempPt);
+		var tempPt=new Phaser.Point();
+		tempPt.x=(2*isoPt.y+isoPt.x)/2;
+		tempPt.y=(2*isoPt.y-isoPt.x)/2;
+		return (tempPt);
 	}
 	/**
 	 * 
@@ -171,13 +176,13 @@ export default class IsometricTilemap extends CustomTilemap{
 			,tileHeight=32
 		} = config;
 
-    var tiles = [];
-    var height = data.length;
-    var width = 0;
+		var tiles = [];
+		var height = data.length;
+		var width = 0;
 
 		const xOff = (data.length-1)*.5;
 
-    for (var y = 0; y < data.length; y++){
+		for (var y = 0; y < data.length; y++){
 			tiles[y] = [];
 			var row = data[y];
 
@@ -205,25 +210,25 @@ export default class IsometricTilemap extends CustomTilemap{
 				}else{
 					tiles[y][x] = new Phaser.Tilemaps.Tile(layerData, tileIndex, xPos, yPos, tileWidth, tileHeight);
 				}
-      }
+			}
 
 			if (width === 0){
 				width = row.length;
 			}
-    }
+		}
 
-    layerData.data = tiles;
+		layerData.data = tiles;
 
-    return layerData;
+		return layerData;
 	}
 
 	static parseIso(name, data, tileWidth, tileHeight, insertNull){
-		// tileHeight /=2
+		
 		var layerData = new Phaser.Tilemaps.LayerData({
-			tileWidth: tileWidth*2,
+			tileWidth: tileWidth,
 			tileHeight: tileHeight,
-			baseTileWidth:tileWidth,
-			// baseTileHeight:tileHeight,
+			baseTileWidth:tileWidth*.5,
+			baseTileHeight:tileHeight*.5,
 			// name: 0
 			orientation: 1
 		});
@@ -237,14 +242,14 @@ export default class IsometricTilemap extends CustomTilemap{
 			,orientation: 1
 		});
 
-    var tiles = [];
-    var height = data.length;
-    var width = 0;
+		var tiles = [];
+		var height = data.length;
+		var width = 0;
 
 		const xOff = (data.length-1)*.3;
 		
 
-    for (var y = 0; y < data.length; y++){
+		for (var y = 0; y < data.length; y++){
 			tiles[y] = [];
 			var row = data[y];
 
@@ -261,8 +266,8 @@ export default class IsometricTilemap extends CustomTilemap{
 				}
 				let isoPos = cartesianToIsometric({x,y});
 
-				const xPos = (x)+xOff,
-					yPos = (y)-xOff;
+				const xPos = (x),
+					yPos = (y);
 
 				if (isNaN(tileIndex) || tileIndex === -1){
 
@@ -274,28 +279,99 @@ export default class IsometricTilemap extends CustomTilemap{
 				}
 
 				if(tiles[y][x]!=null){
-					tiles[y][x].setCollision(false , false , true)
+					// console.log('tiles[y][x]', tiles[y][x])
+					// tiles[y][x].setCollision(false, false, true)
+					// tiles[y][x].depth = yPos + 32;
+
+					// tiles[y][x].properties = {type: 'grass'}
  
-					tiles[y][x].setSize(tileWidth*1.1, tileHeight*1.1, tileWidth, tileHeight*.5)
+					tiles[y][x].setSize(tileWidth, tileHeight, tileWidth, tileHeight*.50)
 					// tiles[y][x].bottom = 128
-					tiles[y][x].setCollisionCallback((ar)=>{
-						console.log( 'asdasd', ar, x, y )
-					})
+					// tiles[y][x].setCollisionCallback(function(gameobject,tile){
+					// 	console.log( 'asdasd', gameobject,tile )
+					// })
 				}
-      }
+			}
 
 			if (width === 0){
 				width = row.length;
 			}
-    }
+		}
 
-    mapData.width = layerData.width = width;
-    mapData.height = layerData.height = height;
-    mapData.widthInPixels = layerData.widthInPixels = width * tileWidth;
-    mapData.heightInPixels = layerData.heightInPixels = height * tileHeight;
-    layerData.data = tiles;
-		console.log('layerData',layerData)
-		console.log('mapData',mapData.tileHeight)
-    return mapData;
-};
+		mapData.width = layerData.width = width;
+		mapData.height = layerData.height = height;
+		mapData.widthInPixels = layerData.widthInPixels = width * tileWidth;
+		mapData.heightInPixels = layerData.heightInPixels = height * tileHeight;
+		layerData.data = tiles;
+		
+		return mapData;
+	}
+
+	setDisometricTileSize( tile ){
+		
+		const tileWidth = tile.width;
+		const tileHeight = tile.height;
+		const baseTileWidth = tile.baseWidth;
+		const baseTileHeight = tile.baseHeight*.5
+		tile.setSize(tileWidth, tileHeight, baseTileWidth, baseTileHeight)
+	}
+
+	putTileInLayer(layerName, tile, tileX, tileY, recalculateFaces){
+
+		const layer = this.getLayer(layerName);
+		const layerIndex = this.getLayerIndexByName(layerName)
+
+		if (recalculateFaces === undefined) { recalculateFaces = true; }
+
+		if (!IsInLayerBounds(tileX, tileY, layer)){
+			return null;
+		}
+
+		var oldTile = layer.data[tileY][tileX];
+		var oldTileCollides = oldTile && oldTile.collides;
+
+		if (tile instanceof Tile){
+			if (layer.data[tileY][tileX] === null){
+				layer.data[tileY][tileX] = new Tile(
+					layer
+					, tile.index
+					, tileX, tileY
+					, layer.tileWidth
+					, layer.tileHeight
+				);
+			}
+			layer.data[tileY][tileX].copy(tile);
+		}else{
+			var index = tile;
+
+			if (layer.data[tileY][tileX] === null){
+				layer.data[tileY][tileX] = new Tile(layer, index, tileX, tileY, layer.tileWidth, layer.tileHeight*.5);
+			}else{
+				layer.data[tileY][tileX].index = index;
+			}
+		}
+
+		// Updating colliding flag on the new tile
+		var newTile = layer.data[tileY][tileX];
+		var collides = layer.collideIndexes.indexOf(newTile.index) !== -1;
+
+		SetTileCollision(newTile, collides);
+
+		// Recalculate faces only if the colliding flag at (tileX, tileY) has changed
+		if (recalculateFaces && (oldTileCollides !== newTile.collides)){
+			CalculateFacesAt(tileX, tileY, layer);
+		}
+
+		this.setDisometricTileSize(newTile)
+
+		if( tileY == 1 ){
+			console.log( 'soy un tile 1' );
+
+			newTile.set
+		}
+
+		return newTile;
+	}
+
+
 }

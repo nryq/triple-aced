@@ -13,14 +13,16 @@ let width = window.innerWidth,
 	height = window.innerHeight;
 
 let config = {
-	type: Phaser.AUTO,
+	type: Phaser.WEBGL,
 	width,
 	height,
 	transparent: true,
+	pixelArt: true,
 	physics: {
-		default: 'arcade',
-		arcade: {
-			// gravity: { y: 200 }
+		default: 'matter',
+		matter: {
+			debug: true,
+			gravity: { y: 0 }
 		},
 		debug: {
 			showBody: true,

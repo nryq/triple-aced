@@ -1,8 +1,11 @@
 import Phaser from "phaser";
 
+import ComponentManager from "@/Utils/gameComponents/ComponentManager";
+
 export default class CustomScene extends Phaser.Scene{
 	constructor(key){
 		super(key)
+		this.componentManager = new ComponentManager();
 	}
 
 	addFullSizeBG(key){
@@ -20,4 +23,10 @@ export default class CustomScene extends Phaser.Scene{
 		img.y = img.displayHeight *.5;
 	}
 
+	update(time, delta){
+
+		this.componentManager.update();
+
+		super.update(time, delta)
+	}
 }

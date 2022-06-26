@@ -8,6 +8,7 @@ import {Align} from 'phaser-utility';
 
 // import Tilemap from '@/Utils/CustomTilemap';
 import IsometricTilemap from '@/Utils/Tilemap.Isometric';
+import TASprites from "@/scripts/TASprites";
 
 import MapScene from "./MapScene";
 
@@ -69,19 +70,27 @@ export default class SceneDungeon extends MapScene{
 		)
 		parser.orientation = 'isometric';
 
+		this.showDebug = false;
+		this.debugGraphics = this.add.graphics();
+
 		let map = new IsometricTilemap(this, parser)
 		// let map = new Phaser.Tilemaps.Tilemap(this, parser);
+		this.map = map;
 
 		const tileset = map.addTilesetImage('asdasd', 'tile', 64, 64);
-		this.layer = map.createLayer(0, tileset, 64, 64).setVisible(true);
-		// let layer2 = map.createBlankLayer('walls', tileset, 200, 200).setData(_layer2);
-		
-		// map.addLayerData({name:'walls', tileWidth:32, tileHeight:32},tileset, _layer2)
-		// this.layer.orientation = 1;
-		// console.log('layer2', layer2)
 
-		// let layer = this.layer;
-		// console.log('layer',this.layer)
+		this.layer = map.createLayer(0, tileset, 0, 0).setVisible(true);
+
+		// this.isobox = this.add.isobox(0, 0, 64, 64, 0x00b9f2, 0x016fce, 0x028fdf);
+
+		// this.physics.add.existing(this.isobox);
+
+
+		// this.layer2 = new Phaser.Tilemaps.TilemapLayer(this, tileset, 1, 0, 0);
+		// map.
+
+		this.layer2 = map.createBlankLayer('walls', tileset, 0, 0).setDepth(0);
+		// this.layer2.randomize(0, 0, 100, 100,  [ -1, 0, 12 ])
 
 		let cartesianToIsometric = function(cartPt){
 			// var tempPt=new Phaser.Point();
@@ -91,40 +100,24 @@ export default class SceneDungeon extends MapScene{
 			return (tempPt);
 		}
 
-		console.log( 'map', this.layer )
-		// console.log( 'tileset', tileset )
-		// console.log('layer', layer.layer)this.scene.sys.displayList.add(layer);
+		this.map.putTileInLayer('walls', 0, 0, 0)
+		this.map.putTileInLayer('walls', 0, 0, 1)
+		this.map.putTileInLayer('walls', 0, 0, 2)
 
-		// layer.layer.data.map(r=>{
-		// 	if( r == null )	return;
-		// 	r.map(c=>{
-		// 		let {x,y} = cartesianToIsometric({x:c.x, y:c.y})
-		// 		c.x = x;
-		// 		c.y = y;
-		// 	})
-		// })
-
-    // this.rt = this.add.renderTexture(0, 0, 800, 600);
-
+		console.log( 'layer index wall', this.map.getLayerIndexByName('layer') )
+		console.log( 'layer index wall', this.map.getLayerIndexByName('walls') )
 		
-
-		this.map = map;
-
-		window.ta = {
-			map
-			// ,tileset
-		}
-		// let tile = this.add.image( 100,100,'tile' );
-
-		// let la = this.add.layer([lvl.map(t=>{t==0?tile:null})])
-
-		// this.add.isobox(200, 100, 50, 10)
-		// let iso = this.add.isobox(300, 100, 50, 10)
-		// iso.projection = 5
-		// this.add.image( 100,100,'tile' );
 		
-		this.player = this.physics.add.sprite(128,128,'player').setDepth(0)
+		// this.physics.add.collider(this.player, this.layer2)
 
+		console.log( {map}, 'asd', this.layer2 )
+		
+		
+		// this.player = this.physics.add.sprite(128,128,'player').setDepth(0)
+		this.player = this.matter.add.image(128,128,'player')
+		this.cameras.main.startFollow(this.player, true, 0.08, 0.08)
+		this.cameras.main.setZoom(2);
+		
 		let up = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
 			down = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
 			left = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
@@ -132,8 +125,66 @@ export default class SceneDungeon extends MapScene{
 
 		this.cursors = {up,down,left,right}
 
-		console.log( 'player', this.player )
+		// this.physics.add.collider(this.player, this.layer2)
+		// this.physics.add.collider(this.player, this.layer)
+		this.layer2.setCollisionByExclusion([ -1 ]);
+		// this.layer.setCollisionByExclusion([ 0 ]);
+
+		this.matter.world.convertTilemapLayer(this.layer2);
+
+		this.matter.world.on('collisionstart', function (event) {
+			console.log( 'hola' )
+		}, this)
+
+		// this.physics.add.collider(this.player, this.layer);
+		
+		// this.physics.add.collider(g, this.player, function(ojb1, obj2){
+		// 	console.log({ojb1}, {obj2})
+		// })
+		// g.setDrag(0.5);
+		this.onMeetEnemy = function (p, e) {
+			if (this.attacking) {
+				const location = this.getValidLocation();
+				e.x = location.x;
+				e.y = location.y;
+			}
+		}
+		this.weapon = this.add.sprite(10, 0, 'sword');
+		this.weapon.setScale(0.5);
+		this.weapon.setSize(8, 8);
+		// this.physics.world.enable(this.weapon);
+		// this.container.add(this.weapon);
+		this.attacking = false;
+
+		this.input.keyboard.on('keydown-C', event=>{
+			this.showDebug = !this.showDebug;
+			this.drawDebug();
+		});
+
+		// this.physics.add.overlap(this.weapon, this.player, this.onMeetEnemy, false, this);
 	}
+
+	drawDebug (){
+    
+		const debugGraphics = this.debugGraphics;
+		debugGraphics.clear();
+
+    if (this.showDebug)
+    {
+        this.layer.renderDebug(debugGraphics, {
+            tileColor: null, // Non-colliding tiles
+            collidingTileColor: new Phaser.Display.Color(211, 36, 255, 100), // Colliding tiles
+            faceColor: new Phaser.Display.Color(211, 36, 255, 255) // Colliding face edges
+        });
+
+        this.layer2.renderDebug(debugGraphics, {
+            tileColor: null, // Non-colliding tiles
+            collidingTileColor: new Phaser.Display.Color(244, 255, 36, 100), // Colliding tiles
+            faceColor: new Phaser.Display.Color(244, 255, 36, 255) // Colliding face edges
+        });
+				
+    }
+}
 
 	
 	update(time, delta){
@@ -144,7 +195,7 @@ export default class SceneDungeon extends MapScene{
 
 		let xVel = 0,
 			yVel = 0,
-			vel = 200;
+			vel = 2.5;
 
 		let lateralMovement = this.cursors.right.isDown || this.cursors.left.isDown;
 		let verticalMovement = this.cursors.up.isDown || this.cursors.down.isDown;
@@ -158,6 +209,7 @@ export default class SceneDungeon extends MapScene{
 			yVel = vel;
 			yVel *= this.cursors.up.isDown?-1:1;
 			yVel *= lateralMovement?.5:.75;
+			this.player.depth = this.player.y + 32;
 		}
 
 		this.player.setVelocityY(yVel);
