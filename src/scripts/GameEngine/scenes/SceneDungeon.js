@@ -114,9 +114,11 @@ export default class SceneDungeon extends MapScene{
 		
 		
 		// this.player = this.physics.add.sprite(128,128,'player').setDepth(0)
-		this.player = this.matter.add.image(128,128,'player')
+		this.player = this.matter.add.sprite(128,128,'player').setFixedRotation(0)
 		this.cameras.main.startFollow(this.player, true, 0.08, 0.08)
 		this.cameras.main.setZoom(2);
+
+		console.log( 'this.player', this.player )
 		
 		let up = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
 			down = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
@@ -127,15 +129,48 @@ export default class SceneDungeon extends MapScene{
 
 		// this.physics.add.collider(this.player, this.layer2)
 		// this.physics.add.collider(this.player, this.layer)
-		this.layer2.setCollisionByExclusion([ -1 ]);
+		// this.layer2.setCollisionByExclusion([ -1 ]);
 		// this.layer.setCollisionByExclusion([ 0 ]);
 
-		this.matter.world.convertTilemapLayer(this.layer2);
+		// this.matter.world.convertTilemapLayer(this.layer2);
 
 		this.matter.world.on('collisionstart', function (event) {
 			console.log( 'hola' )
 		}, this)
 
+		this.layer.forEachTile(tile => {
+
+			if( tile.index !== 1 )	return;
+			
+			const {
+				x:tileX, y:tileY
+				, height:tileHeight, width:tileWidth
+				, tilemapLayer: tileTilemapLayer
+			} = tile;
+
+			const displayWidth = tileWidth*.25,
+				displayHeight = tileHeight*.5,
+				xOff = tileTilemapLayer.x,
+				yOff = tileTilemapLayer.y;
+
+			var shapes = {
+				"diamond": [
+					[
+						{ "x": 0, "y": -(displayWidth) }
+						, { "x": displayHeight, "y": 0 }
+						, { "x": 0, "y": (displayWidth) }
+						, { "x": -displayHeight, "y": 0 }
+					]
+				]
+			};
+			let isoPoint = IsometricTilemap.cartesianToIsometric(tileX, tileY);
+
+			const posX = ((isoPoint.x+.5)*tileWidth)+xOff
+				, posY= ((isoPoint.y+.25)*tileHeight)+yOff;
+
+			var iso_collision = this.add.polygon(posX, posY, shapes.diamond, 0xff0000, 0.1);
+			this.matter.add.gameObject(iso_collision, { shape: { type: 'fromVerts', verts: shapes.diamond } }).setStatic(true);
+		});
 		// this.physics.add.collider(this.player, this.layer);
 		
 		// this.physics.add.collider(g, this.player, function(ojb1, obj2){

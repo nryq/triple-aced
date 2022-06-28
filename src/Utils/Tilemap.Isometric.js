@@ -97,12 +97,6 @@ export default class IsometricTilemap extends CustomTilemap{
 		let layer = new Phaser.GameObjects.Layer()
 	}
 
-	cartesianToIsometric(cartPt){
-		var tempPt=new Phaser.Point();
-		tempPt.x=cartPt.x-cartPt.y;
-		tempPt.y=(cartPt.x+cartPt.y)/2;
-		return (tempPt);
-	}
 	isometricToCartesian(isoPt){
 		var tempPt=new Phaser.Point();
 		tempPt.x=(2*isoPt.y+isoPt.x)/2;
@@ -220,6 +214,14 @@ export default class IsometricTilemap extends CustomTilemap{
 		layerData.data = tiles;
 
 		return layerData;
+	}
+
+	static cartesianToIsometric(x, y){
+		// var tempPt=new Phaser.Point();
+		let tempPt = {}
+		tempPt.x=((x-y)/2);
+		tempPt.y=((x+y)/4);
+		return (tempPt);
 	}
 
 	static parseIso(name, data, tileWidth, tileHeight, insertNull){
