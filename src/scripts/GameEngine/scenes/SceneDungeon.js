@@ -89,7 +89,7 @@ export default class SceneDungeon extends MapScene{
 		// this.layer2 = new Phaser.Tilemaps.TilemapLayer(this, tileset, 1, 0, 0);
 		// map.
 
-		this.layer2 = map.createBlankLayer('walls', tileset, 0, 0).setDepth(0);
+		this.layer2 = map.createBlankLayer('walls', tileset, 0, 0).setDepth(100);
 		// this.layer2.randomize(0, 0, 100, 100,  [ -1, 0, 12 ])
 
 		let cartesianToIsometric = function(cartPt){
@@ -101,8 +101,8 @@ export default class SceneDungeon extends MapScene{
 		}
 
 		this.map.putTileInLayer('walls', 0, 0, 0)
-		this.map.putTileInLayer('walls', 0, 0, 1)
-		this.map.putTileInLayer('walls', 0, 0, 2)
+		// this.map.putTileInLayer('walls', 0, 0, 1)
+		// this.map.putTileInLayer('walls', 0, 0, 2)
 
 		console.log( 'layer index wall', this.map.getLayerIndexByName('layer') )
 		console.log( 'layer index wall', this.map.getLayerIndexByName('walls') )
@@ -114,7 +114,9 @@ export default class SceneDungeon extends MapScene{
 		
 		
 		// this.player = this.physics.add.sprite(128,128,'player').setDepth(0)
-		this.player = this.matter.add.sprite(128,128,'player').setFixedRotation(0)
+		this.player = this.matter.add.sprite(128,128,'player')
+			.setScale(1, 1)
+			.setFixedRotation(0)
 		this.cameras.main.startFollow(this.player, true, 0.08, 0.08)
 		this.cameras.main.setZoom(2);
 
@@ -137,8 +139,16 @@ export default class SceneDungeon extends MapScene{
 		this.matter.world.on('collisionstart', function (event) {
 			console.log( 'hola' )
 		}, this)
-
+		console.log( 'play', this.player )
+		
 		this.layer.forEachTile(tile => {
+
+			Phaser.Geom.Mesh.GenerateGridVerts({
+				tile,
+				widthSegments: 6
+		});
+
+			// console.log( {tile} )
 
 			if( tile.index !== 1 )	return;
 			
@@ -148,18 +158,18 @@ export default class SceneDungeon extends MapScene{
 				, tilemapLayer: tileTilemapLayer
 			} = tile;
 
-			const displayWidth = tileWidth*.25,
-				displayHeight = tileHeight*.5,
+			const displayWidth = tileWidth*.5,
+				displayHeight = tileHeight*.25,
 				xOff = tileTilemapLayer.x,
 				yOff = tileTilemapLayer.y;
 
 			var shapes = {
 				"diamond": [
 					[
-						{ "x": 0, "y": -(displayWidth) }
-						, { "x": displayHeight, "y": 0 }
-						, { "x": 0, "y": (displayWidth) }
-						, { "x": -displayHeight, "y": 0 }
+						{ "x": 0, "y": -displayHeight } //superior
+						, { "x": displayWidth, "y": 0 } //derecho
+						, { "x": 0, "y": displayHeight } //inferior
+						, { "x": -displayWidth, "y": 0 } //izquierdo
 					]
 				]
 			};
@@ -171,6 +181,41 @@ export default class SceneDungeon extends MapScene{
 			var iso_collision = this.add.polygon(posX, posY, shapes.diamond, 0xff0000, 0.1);
 			this.matter.add.gameObject(iso_collision, { shape: { type: 'fromVerts', verts: shapes.diamond } }).setStatic(true);
 		});
+		this.layer2.forEachTile(tile => {
+
+			if( tile.index !== 0 )	return;
+			
+			const {
+				x:tileX, y:tileY
+				, height:tileHeight, width:tileWidth
+				, tilemapLayer: tileTilemapLayer
+			} = tile;
+
+			const displayWidth = tileWidth*.5,
+				displayHeight = tileHeight*.25,
+				xOff = tileTilemapLayer.x,
+				yOff = tileTilemapLayer.y;
+
+			var shapes = {
+				diamond: [
+					[
+						{ x: 0, y: -(displayHeight) }  //superior
+						, { x: displayWidth, y: 0 }  //derecho
+						, { x: 0, y: (displayHeight) }  //inferior
+						, { x: -displayWidth, y: 0 }  //izquierdo
+					]
+				]
+			};
+
+			let isoPoint = IsometricTilemap.cartesianToIsometric(tileX, tileY);
+
+			const posX = ((isoPoint.x+.5)*tileWidth)+xOff
+				, posY= ((isoPoint.y+.25)*tileHeight)-yOff+(tileHeight*.5);
+
+			var iso_collision = this.add.polygon(posX, posY, shapes.diamond, 0xff0000, 0.1);
+			this.matter.add.gameObject(iso_collision, { shape: { type: 'fromVerts', verts: shapes.diamond } }).setStatic(true);
+		});
+		
 		// this.physics.add.collider(this.player, this.layer);
 		
 		// this.physics.add.collider(g, this.player, function(ojb1, obj2){
