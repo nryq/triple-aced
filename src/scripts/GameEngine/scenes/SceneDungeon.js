@@ -2,6 +2,7 @@ import Phaser from "phaser";
 
 import tile from '@/assets/tilesets/Isometric/Tiles/BaseTiles/Base1 (64x64).png';
 import player from '@/assets/pj/elf_f_idle_anim_f0.png';
+import sword from '@/assets/sword.png';
 
 import {Align} from 'phaser-utility';
 // import { Align } from "node_modules/phaser-utility/index";
@@ -21,13 +22,7 @@ export default class SceneDungeon extends MapScene{
 		this.load.image('tile', tile);
 		this.load.image('player', player);
 		
-		// this.load.tilemapTiledJSON('map', 'src/assets/map.json');
-
-		// this.load.image('tiles', 'http://labs.phaser.io/assets/tilemaps/iso/iso-64x64-outside.png');
-    // this.load.image('tiles2', 'http://labs.phaser.io/assets/tilemaps/iso/iso-64x64-building.png');
-    // this.load.tilemapTiledJSON('m', 'http://labs.phaser.io/assets/tilemaps/iso/isorpg.json');
-
-		// this.load.map('mm', 'http://labs.phaser.io/assets/tilemaps/iso/isorpg.json')
+		this.load.image('sword', sword)
 	}
 	
 	create (){
@@ -81,13 +76,6 @@ export default class SceneDungeon extends MapScene{
 
 		this.layer = map.createLayer(0, tileset, 0, 0).setVisible(true);
 
-		// this.isobox = this.add.isobox(0, 0, 64, 64, 0x00b9f2, 0x016fce, 0x028fdf);
-
-		// this.physics.add.existing(this.isobox);
-
-
-		// this.layer2 = new Phaser.Tilemaps.TilemapLayer(this, tileset, 1, 0, 0);
-		// map.
 
 		this.layer2 = map.createBlankLayer('walls', tileset, 0, 0).setDepth(100);
 		// this.layer2.randomize(0, 0, 100, 100,  [ -1, 0, 12 ])
@@ -101,22 +89,10 @@ export default class SceneDungeon extends MapScene{
 		}
 
 		this.map.putTileInLayer('walls', 0, 0, 0)
-		// this.map.putTileInLayer('walls', 0, 0, 1)
-		// this.map.putTileInLayer('walls', 0, 0, 2)
 
-		console.log( 'layer index wall', this.map.getLayerIndexByName('layer') )
-		console.log( 'layer index wall', this.map.getLayerIndexByName('walls') )
-		
-		
-		// this.physics.add.collider(this.player, this.layer2)
-
-		console.log( {map}, 'asd', this.layer2 )
-		
-		
-		// this.player = this.physics.add.sprite(128,128,'player').setDepth(0)
 		this.player = this.matter.add.sprite(128,128,'player')
-			.setScale(1, 1)
 			.setFixedRotation(0)
+			
 		this.cameras.main.startFollow(this.player, true, 0.08, 0.08)
 		this.cameras.main.setZoom(2);
 
@@ -125,9 +101,10 @@ export default class SceneDungeon extends MapScene{
 		let up = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
 			down = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
 			left = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
-			right = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
+			right = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
+			attack = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F)
 
-		this.cursors = {up,down,left,right}
+		this.cursors = {up,down,left,right, attack}
 
 		// this.physics.add.collider(this.player, this.layer2)
 		// this.physics.add.collider(this.player, this.layer)
@@ -215,23 +192,8 @@ export default class SceneDungeon extends MapScene{
 			var iso_collision = this.add.polygon(posX, posY, shapes.diamond, 0xff0000, 0.1);
 			this.matter.add.gameObject(iso_collision, { shape: { type: 'fromVerts', verts: shapes.diamond } }).setStatic(true);
 		});
-		
-		// this.physics.add.collider(this.player, this.layer);
-		
-		// this.physics.add.collider(g, this.player, function(ojb1, obj2){
-		// 	console.log({ojb1}, {obj2})
-		// })
-		// g.setDrag(0.5);
-		this.onMeetEnemy = function (p, e) {
-			if (this.attacking) {
-				const location = this.getValidLocation();
-				e.x = location.x;
-				e.y = location.y;
-			}
-		}
-		this.weapon = this.add.sprite(10, 0, 'sword');
-		this.weapon.setScale(0.5);
-		this.weapon.setSize(8, 8);
+
+		this.weapon = this.matter.add.sprite(10, 0, 'sword').setScale(.1, .1).setSensor(true)
 		// this.physics.world.enable(this.weapon);
 		// this.container.add(this.weapon);
 		this.attacking = false;
@@ -241,7 +203,9 @@ export default class SceneDungeon extends MapScene{
 			this.drawDebug();
 		});
 
-		// this.physics.add.overlap(this.weapon, this.player, this.onMeetEnemy, false, this);
+		this.playerContainer = this.add.container(0, 0);
+		this.playerContainer.add(this.player)
+		this.playerContainer.add(this.weapon);
 	}
 
 	drawDebug (){
@@ -264,10 +228,30 @@ export default class SceneDungeon extends MapScene{
         });
 				
     }
-}
+	}
 
 	
 	update(time, delta){
+
+			if( this.cursors.attack.isDown && (this.timer === 0 || this.timer == null)){
+
+				console.log( 'attack', this.weapon )
+				let xPos = this.player.x, yPos = this.player.y;
+				this.weapon = this.matter.add.sprite(xPos, yPos, 'sword').setScale(.1, .1).setSensor(true)
+				this.weapon.setVisible(true).setFlipX(true);
+				this.timer = 1000;
+				
+			}else if(this.timer > 0){
+
+				this.timer -= delta;
+			}else if( this.timer !== null ){
+
+				this.timer = null;
+				this.weapon.destroy();
+			}
+
+			
+		// }
 
 		// this.rt.clear();
 
@@ -294,5 +278,16 @@ export default class SceneDungeon extends MapScene{
 
 		this.player.setVelocityY(yVel);
 		this.player.setVelocityX(xVel);
+	}
+
+	generate(x, y){
+    fireball.setPosition(player.x, player.y).setScale(0.5).setAlpha(1);
+
+    curve = new Phaser.Curves.Line(new Phaser.Math.Vector2(player.x, player.y), new Phaser.Math.Vector2(x, y));
+
+    fireball.setPath(curve);
+    fireball.startFollow(300);
+    
+    fireFX.restart();    
 	}
 }
