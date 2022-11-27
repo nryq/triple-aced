@@ -12,6 +12,9 @@ import IsometricTilemap from '@/Utils/Tilemap.Isometric';
 import TASprites from "@/scripts/TASprites";
 
 import MapScene from "./MapScene";
+import StateMachine from "../StateMachine/stateMachine";
+import PlayerStateMachine from "@/scripts/PlayerScripts/playerStateMachine";
+import Player from "@/scripts/PlayerScripts/player";
 
 export default class SceneDungeon extends MapScene{
 	constructor(config){
@@ -56,6 +59,8 @@ export default class SceneDungeon extends MapScene{
 			,tilewidth: 1024
 		}
 
+		
+
 		let parser = IsometricTilemap.parseIso(
 			'dun'
 			, lvl
@@ -88,23 +93,33 @@ export default class SceneDungeon extends MapScene{
 			return (tempPt);
 		}
 
+		
+
+		// mac.changeState(null)
+
 		this.map.putTileInLayer('walls', 0, 0, 0)
 
+		this.weapon = this.matter.add.sprite(10, 0, 'sword').setScale(.1, .1).setSensor(true).setVisible(false)
 		this.player = this.matter.add.sprite(128,128,'player')
 			.setFixedRotation(0)
+
+		this.playerEngine = new Player(this, this.player, this.weapon)
+			console.log('mac', this.playerEngine)
 			
-		this.cameras.main.startFollow(this.player, true, 0.08, 0.08)
+		this.cameras.main.startFollow(this.player, true, 0.10, 0.10)
 		this.cameras.main.setZoom(2);
 
 		console.log( 'this.player', this.player )
-		
-		let up = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
-			down = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
-			left = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
-			right = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
-			attack = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F)
 
-		this.cursors = {up,down,left,right, attack}
+		console.log( 'inpts', Phaser.Input)
+		
+		// let up = this.input.keyboard.addKey('i'),
+		// 	down = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
+		// 	left = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
+		// 	right = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
+		// 	attack = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F)
+
+		// this.cursors = {up,down,left,right, attack}
 
 		// this.physics.add.collider(this.player, this.layer2)
 		// this.physics.add.collider(this.player, this.layer)
@@ -193,7 +208,7 @@ export default class SceneDungeon extends MapScene{
 			this.matter.add.gameObject(iso_collision, { shape: { type: 'fromVerts', verts: shapes.diamond } }).setStatic(true);
 		});
 
-		this.weapon = this.matter.add.sprite(10, 0, 'sword').setScale(.1, .1).setSensor(true)
+		// this.weapon = this.matter.add.sprite(10, 0, 'sword').setScale(.1, .1).setSensor(true)
 		// this.physics.world.enable(this.weapon);
 		// this.container.add(this.weapon);
 		this.attacking = false;
@@ -232,52 +247,12 @@ export default class SceneDungeon extends MapScene{
 
 	
 	update(time, delta){
-
-			if( this.cursors.attack.isDown && (this.timer === 0 || this.timer == null)){
-
-				console.log( 'attack', this.weapon )
-				let xPos = this.player.x, yPos = this.player.y;
-				this.weapon = this.matter.add.sprite(xPos, yPos, 'sword').setScale(.1, .1).setSensor(true)
-				this.weapon.setVisible(true).setFlipX(true);
-				this.timer = 1000;
-				
-			}else if(this.timer > 0){
-
-				this.timer -= delta;
-			}else if( this.timer !== null ){
-
-				this.timer = null;
-				this.weapon.destroy();
-			}
-
-			
-		// }
+		
+		this.playerEngine.onUpdate(time, delta)
 
 		// this.rt.clear();
 
     // this.rt.draw(this.layer);
-
-		let xVel = 0,
-			yVel = 0,
-			vel = 2.5;
-
-		let lateralMovement = this.cursors.right.isDown || this.cursors.left.isDown;
-		let verticalMovement = this.cursors.up.isDown || this.cursors.down.isDown;
-
-		if( lateralMovement ){
-			xVel = vel;
-			xVel *= this.cursors.left.isDown?-1:1;
-		}
-
-		if( verticalMovement ){
-			yVel = vel;
-			yVel *= this.cursors.up.isDown?-1:1;
-			yVel *= lateralMovement?.5:.75;
-			this.player.depth = this.player.y + 32;
-		}
-
-		this.player.setVelocityY(yVel);
-		this.player.setVelocityX(xVel);
 	}
 
 	generate(x, y){
